@@ -666,6 +666,13 @@ func (e *EVMBackend) SendTransaction(args types.SendTxArgs) (common.Hash, error)
 
 	txHash := msg.AsTransaction().Hash()
 
+	// check tx exists on EVM
+	_, err := e.GetTxByEthHash(tx.Hash())
+	if err != nil {
+		e.logger.Debug("failed to query eth tx hash", "hash", txHash.Hex(), "error", err.Error())
+		continue
+	}
+
 	// Broadcast transaction in sync mode (default)
 	// NOTE: If error is encountered on the node, the broadcast will not return an error
 	syncCtx := e.clientCtx.WithBroadcastMode(flags.BroadcastSync)
